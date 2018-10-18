@@ -44,38 +44,67 @@ export class TapeDeckFactory {
 
 export class MochaTapeDeck extends mocha.Test implements ICompilable, IRecordable, IPlayable {
   private cassettePath: string
-  private testWrapper: () => Promise<void>
-
-
+  private fnPrefix: () => void
+  private fnSuffix: () => void
   constructor(cassettePath: string, title: string, fn?: mocha.Func | mocha.AsyncFunc) {
     super(title, fn)
     this.cassettePath = cassettePath;
   }
 
   recordCassette(): ICompilable {
-    this.testWrapper = () => {
+    if (!this.fn) {
+      return this
+    }
+
+    this.fnPrefix = () => {
       if (!fs.existsSync(this.cassettePath)) {
         fs.mkdirSync(this.cassettePath)
       } else if (fs.existsSync(this.getCassetteFilePath())) {
         fs.unlinkSync(this.getCassetteFilePath())
       }
-    }
-    if (!this.fn) {
-      return this
-    }
 
-
-
-    const originalFn: any = this.fn;
-    this.fn = ((context: mocha.Context, done?: mocha.Done): PromiseLike<any> => {
       nock.recorder.rec(({
         dont_print: true,
         use_separator: false,
         output_objects: true,
         // logging: this.appendToFile.bind(this),
       }));
+    }
 
-      const tmp = (global.context as any).it;
+    this.fnSuffix = () => {
+      const res = nock.recorder.play()
+      fs.writeFileSync(this.getCassetteFilePath(), JSON.stringify(res, null, 2))
+      nock.recorder.clear()
+      nock.cleanAll()
+      nock.restore()
+    }
+
+    return this;
+  }
+
+  playCassette(file?: string): ICompilable {
+    this.fnPrefix = () => {
+      const path = file || this.getCassetteFilePath()
+      nock.load(path)
+      nock.activate()
+    }
+
+    this.fnSuffix = () => {
+      nock.restore()
+      nock.cleanAll()
+    }
+
+    return this;
+  }
+
+  selectCassetteAction(fn: () => 'record' | 'play', cassettePath?: string): ICompilable {
+    return fn() === 'record' ? this.recordCassette() : this.playCassette(cassettePath)
+  }
+
+  compile(suite: mocha.Suite) {
+    const originalFn: any = this.fn;
+    this.fn = ((context: mocha.Context, done?: mocha.Done): PromiseLike<any> => {
+      this.fnPrefix()
 
       let testExecutedPromise: Promise<any>;
 
@@ -88,25 +117,10 @@ export class MochaTapeDeck extends mocha.Test implements ICompilable, IRecordabl
         testExecutedPromise = Promise.resolve();
       }
 
-      return returnVal
-        .then(() => {
-          const n = nock;
-          const res = nock.recorder.play()
-          fs.writeFileSync(this.getCassetteFilePath(), JSON.stringify(res, null, 2))
-        });
+      return testExecutedPromise
+        .then(() => this.fnSuffix());
     }) as any
 
-    return this;
-  }
-
-  playCassette(file?: string): ICompilable {
-    const path = file || this.getCassetteFilePath()
-    nock.load(path)
-
-    return this;
-  }
-
-  compile(suite: mocha.Suite) {
     suite.addTest(this)
   }
 
@@ -116,11 +130,7 @@ export class MochaTapeDeck extends mocha.Test implements ICompilable, IRecordabl
 
 
   private getCassetteName(): string {
-    return this.title.replace(" ", "_") + '.cassette';
-  }
-
-  private appendToFile(content: {}) {
-    fs.appendFileSync(this.getCassetteFilePath(), JSON.stringify(content, null, 2))
+    return this.fullTitle().split(' ').join('_') + ".cassette"
   }
 }
 
