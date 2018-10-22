@@ -41,7 +41,6 @@ export class TapeDeckFactory {
   }
 }
 
-
 export class MochaTapeDeck extends mocha.Test implements ICompilable, IRecordable, IPlayable {
   private cassettePath: string
   private fnPrefix: () => void
