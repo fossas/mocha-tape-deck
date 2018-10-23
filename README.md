@@ -1,74 +1,83 @@
 # Mocha Tape Deck [![CircleCI](https://circleci.com/gh/fossas/mocha-tape-deck.svg?style=svg)](https://circleci.com/gh/fossas/mocha-tape-deck) [![codecov](https://codecov.io/gh/fossas/mocha-tape-deck/branch/master/graph/badge.svg)](https://codecov.io/gh/fossas/mocha-tape-deck)
-The easiest way to create, manage, and replay http interactions for fast, deterministic tests that can easily become integration tests
+Create, manage, and replay HTTP requests and responses for fast, deterministic tests.
 
-## install 
+## Installation
+### Using `npm`
 `npm install --save-dev mocha-tape-deck`
-or
+
+### Using `yarn`
 `yarn add -D mocha-tape-deck`
+
 ## Usage
-Wrap an existing test that makes http calls in a `TestTapeDeck`.
-ex:
+Wrap an existing test that makes HTTP requests in a `TestTapeDeck`. For example:
+
 ```javascript
-describe('Example without test dape deck', function () {
-  let response = 'response1'
-  let app 
-  let server
+const rp = require('request-promise');
+
+describe('Example without test tape deck', function () {
+  let response = 'example response';
+  let app;
+  let server;
+
   beforeEach(() => {
     app = express();
-    server = app.listen(8001, done);
     app.get('/test', (req, res) => {
-      res.send(response)
-    }) 
-  })
+      res.send(response);
+    });
+    server = app.listen(8001, done);
+  });
 
-  it('example http call', () => {
+  it('makes an HTTP request', () => {
     return rp.get('http://localhost:8001/test')
-      .then((resp) => expect(resp).to.be.equal('response1'))
-  })
-})
+      .then((resp) => expect(resp).to.be.equal('example response'));
+  });
+});
 ```
-becomes
-```javascript
-const { TapeDeckFactory } = require('mocha-tape-deck')
 
-// the method provided to describe must use the keyword 'function', DO NOT use a fat arrow function (() => ...)
-describe('Example without test dape deck', function () {
-  // this must be OUTSIDE of any mocha block (e.g. before, beforeAll, etc ...), this defines where the fixtures (called cassettes) are saved
+becomes:
+
+```javascript
+const { TapeDeckFactory } = require('mocha-tape-deck');
+
+// The method provided to describe must use the keyword 'function', DO NOT use a fat arrow function (() => ...)
+describe('Example without test tape deck', function () {
+  // This must be OUTSIDE of any mocha block (e.g. before, beforeAll, etc ...), this defines where the fixtures (called cassettes) are saved
   const tapeDeckFactory = new TapeDeckFactory(path.join(__dirname, 'cassettes'));
 
-  let response = 'response1'
-  let app 
-  let server
+  let response = 'example response';
+  let app;
+  let server;
+
   beforeEach(() => {
     app = express();
     server = app.listen(8001, done);
     app.get('/test', (req, res) => {
-      res.send(response)
-    }) 
-  })
+      res.send(response);
+    });
+  });
 
   // this test makes actual HTTP requests and records for replay in a cassette in the directory passed to TapeDeckFactory, in this case cassettes
   tapeDeckFactory.createTestTapeDeck('can record http calls', async () => {
-    const resp = await rp.get(`http://localhost:${PORT}/test`);
-    expect(resp).to.be.equal('response1');
+    const resp = await rp.get(`http://localhost:8001/test`);
+    expect(resp).to.be.equal('example response');
   })
   // this tells the test to make REAL http calls and record the responses
   .recordCassette()
-  .compile(this)
+  .compile(this);
 
   // this test mocks HTTP requests and records for replay in a cassette in the directory passed to TapeDeckFactory, in this case cassettes
   tapeDeckFactory.createTestTapeDeck('can replay http calls', async () => {
-    const resp = await rp.get(`http://localhost:${PORT}/test`);
-    expect(resp).to.be.equal('response1');
+    const resp = await rp.get(`http://localhost:8001/test`);
+    expect(resp).to.be.equal('example response');
   })
-  // this tells the test to use the mock responses. If a path to a .cassette file is not provided, it manages uses the test description to find the fixture. 
+  // this tells the test to use the mock responses. If a path to a .cassette file is not provided, it uses the test description to find the fixture. 
   .recordCassette()
   .compile(this)
 
   // If you want to dynamically decide whether to record or play a cassette, use selectCassetteAction
   tapeDeckFactory.createTestTapeDeck('can decide whether to replay or record calls', async () => {
     const resp = await rp.get(`http://localhost:${PORT}/test`);
-    expect(resp).to.be.equal('response1');
+    expect(resp).to.be.equal('example response');
   })
   .selectCassetteAction(() => {
     if(shouldRecord) {
