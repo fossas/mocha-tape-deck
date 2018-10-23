@@ -2,3 +2,5 @@ node_modules
 dist
 yarn-error.log
 .coveralls.yml
+coverage
+.nyc_output

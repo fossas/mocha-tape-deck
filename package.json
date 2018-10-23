@@ -7,6 +7,9 @@
     "clean": "rm -rf dist",
     "build": "node_modules/.bin/tsc",
     "test": "mocha --require ./node_modules/ts-node/register --recursive test/**/*.spec.ts",
+    "test:debug": "mocha --inspect-brk --require ./node_modules/ts-node/register --recursive test/**/*.spec.ts",
+    "coverage": "node_modules/.bin/nyc npm run test",
+    "publish:coverage": "node_modules/.bin/nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "prepublish": "npm run test"
   },
   "dependencies": {
@@ -23,6 +26,7 @@
     "@types/rimraf": "^2.0.2",
     "chai": "^4.2.0",
     "express": "^4.16.4",
+    "nyc": "^13.1.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
     "ts-node": "^7.0.1",
@@ -33,6 +37,7 @@
       ".ts"
     ],
     "exclude": [
+      "**/*.spec.ts",
       "**/*.d.ts",
       "**/*.js",
       "**/*.map"

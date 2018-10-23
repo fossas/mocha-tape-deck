@@ -5,7 +5,7 @@ import path = require('path');
 import rimraf = require('rimraf');
 
 export interface ICompilable {
-  compile(suite: mocha.Suite): void;
+  compile(suite: mocha.Suite);
 }
 
 export interface IRecordable {
@@ -110,34 +110,52 @@ export class MochaTapeDeck extends mocha.Test implements ICompilable, IRecordabl
 
   compile(suite: mocha.Suite) {
     const originalFn: any = this.fn;
-    this.fn = ((context: mocha.Context, done?: mocha.Done): PromiseLike<any> => {
-      this.fnPrefix()
+    this.fn = (done?: mocha.Done): PromiseLike<any> => {
+      this.fnPrefix();
 
       let testExecutedPromise: Promise<any>;
 
-      const returnVal = originalFn(context, done)
+      let doneWrapper;
+      let donePromise = new Promise((res) => {
+        doneWrapper = res
+      });
+
+      const returnVal = originalFn(done ? doneWrapper : undefined);
       // sanity check for promise case
       if (returnVal && returnVal.then) {
-        testExecutedPromise = returnVal
+        testExecutedPromise = returnVal;
       } else {
         //test was synchronous
         testExecutedPromise = Promise.resolve();
       }
 
-      return testExecutedPromise
-        .then(() => this.fnSuffix());
-    }) as any
+      testExecutedPromise
+        .then(() => {
+          if (done) {
+            return donePromise
+              .then((res) => {
+                done(res)
+              });
+          }
+        })
+        .then(() => this.fnSuffix())
 
-    suite.addTest(this)
+        // if we return with a done fn defined, we get the error Resolution method is overspecified.
+      if (!done) {
+        return testExecutedPromise;
+      }
+    };
+
+    suite.addTest(this);
   }
 
   private getCassetteFilePath(): string {
-    return path.join(this.cassettePath, this.getCassetteName())
+    return path.join(this.cassettePath, this.getCassetteName());
   }
 
 
   private getCassetteName(): string {
-    return this.fullTitle().split(' ').join('_') + ".cassette"
+    return this.fullTitle().split(' ').join('_') + ".cassette";
   }
 }
 

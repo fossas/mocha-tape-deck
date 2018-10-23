@@ -40,11 +40,29 @@ describe('Mocha Tape Deck', function () {
     .recordCassette()
     .compile(this)
 
-
-    tapeDeckFactory.createTestTapeDeck('can be read', async () => {
+    tapeDeckFactory.createTestTapeDeck('can be read with an async function', async () => {
       response = 'incorrectResponse'
       const resp = await rp.get(`http://localhost:${PORT}/test`)
       expect(resp).to.be.equal('response1')
+    })
+    .playCassette(path.join(__dirname, 'cassettes', 'Mocha_Tape_Deck_Mocks_the_http_requests_that_were_recorded_can_be_written.cassette'))
+    .compile(this)
+
+    tapeDeckFactory.createTestTapeDeck('can be read with a done param', (done) => {
+      response = 'incorrectResponse'
+      rp.get(`http://localhost:${PORT}/test`)
+        .then((resp) => expect(resp).to.be.equal('response1'))
+        .then(() => done())
+        .catch(done)
+    })
+    .playCassette(path.join(__dirname, 'cassettes', 'Mocha_Tape_Deck_Mocks_the_http_requests_that_were_recorded_can_be_written.cassette'))
+    .compile(this)
+
+    tapeDeckFactory.createTestTapeDeck('can be read with a returned promise', () => {
+      response = 'incorrectResponse'
+
+      return rp.get(`http://localhost:${PORT}/test`)
+        .then((resp) => expect(resp).to.be.equal('response1'));
     })
     .playCassette(path.join(__dirname, 'cassettes', 'Mocha_Tape_Deck_Mocks_the_http_requests_that_were_recorded_can_be_written.cassette'))
     .compile(this)
