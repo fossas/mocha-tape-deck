@@ -3,6 +3,12 @@
   "version": "0.0.1",
   "main": "dist/index.js",
   "license": "MIT",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "node_modules/.bin/tsc",
+    "test": "mocha --require ./node_modules/ts-node/register --recursive test/**/*.spec.ts",
+    "prepublish": "npm run test"
+  },
   "dependencies": {
     "mocha": "^5.2.0",
     "nock": "^10.0.1",
@@ -19,6 +25,7 @@
     "express": "^4.16.4",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
+    "ts-node": "^7.0.1",
     "typescript": "^3.1.3"
   }
 }
