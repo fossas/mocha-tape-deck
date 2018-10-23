@@ -48,9 +48,14 @@ export class MochaTapeDeck extends mocha.Test implements ICompilable, IRecordabl
   constructor(cassettePath: string, title: string, fn?: mocha.Func | mocha.AsyncFunc) {
     super(title, fn)
     this.cassettePath = cassettePath;
+    this.fnPrefix = () => {};
+    this.fnSuffix = () => {};
   }
 
   recordCassette(): ICompilable {
+    if (process.env.NO_CASSETTE_MOCKING) { 
+      return this;
+    }
     if (!this.fn) {
       return this
     }
@@ -66,7 +71,6 @@ export class MochaTapeDeck extends mocha.Test implements ICompilable, IRecordabl
         dont_print: true,
         use_separator: false,
         output_objects: true,
-        // logging: this.appendToFile.bind(this),
       }));
     }
 
@@ -82,6 +86,10 @@ export class MochaTapeDeck extends mocha.Test implements ICompilable, IRecordabl
   }
 
   playCassette(file?: string): ICompilable {
+    if (process.env.NO_CASSETTE_MOCKING) { 
+      return this;
+    }
+
     this.fnPrefix = () => {
       const path = file || this.getCassetteFilePath()
       nock.load(path)
