@@ -9,7 +9,7 @@
     "test": "mocha --require ./node_modules/ts-node/register --recursive test/**/*.spec.ts",
     "test:debug": "mocha --inspect-brk --require ./node_modules/ts-node/register --recursive test/**/*.spec.ts",
     "coverage": "node_modules/.bin/nyc npm run test",
-    "publish:coverage": "node_modules/.bin/nyc report --reporter=text-lcov > coverage.lcov && codecov",
+    "publish:coverage": "node_modules/.bin/nyc report --reporter=text-lcov > coverage.lcov && curl -s https://codecov.io/bash | bash",
     "prepublish": "npm run test"
   },
   "dependencies": {

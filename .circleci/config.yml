@@ -16,9 +16,6 @@ jobs:
           name: install globals
           command: yarn global add typescript
       - run:
-          name: install coverage tooling
-          command: curl -s https://codecov.io/bash | bash
-      - run:
           name: yarn install
           command: yarn
       - save_cache:
