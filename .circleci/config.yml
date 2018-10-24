@@ -45,7 +45,7 @@ jobs:
       - run:
           name: yarn install
           command: yarn
-      -- run:
+      - run:
           name: transpile
           command: yarn build
       - run:
@@ -69,6 +69,10 @@ workflows:
               only: master
             tags:
               only: /v[0-9]+(\.[0-9]+)*.*/
+      - hold:
+          type: approval
+          requires:
+            - build_and_test
       - publish:
           requires:
             - build_and_test
