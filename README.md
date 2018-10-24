@@ -34,7 +34,7 @@ describe('Mocha Tape Deck', function() {
     server.close(done);
   });
 
-    // If a cassette exists, this will replay the cassette. Otherwise, it will
+  // If a cassette exists, this will replay the cassette. Otherwise, it will
   // create a cassette and cache it in the TapeDeck's path.
   deck.createTest('test name here', async () => {
     const resp = await rp.get(`http://localhost:${port}/test`);
