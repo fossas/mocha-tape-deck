@@ -45,6 +45,9 @@ jobs:
       - run:
           name: yarn install
           command: yarn
+      -- run:
+          name: transpile
+          command: yarn build
       - run:
           name: publish package to npm
           command: npm publish
