@@ -1,4 +1,4 @@
-# Mocha Tape Deck [![CircleCI](https://circleci.com/gh/fossas/mocha-tape-deck.svg?style=svg)](https://circleci.com/gh/fossas/mocha-tape-deck) [![codecov](https://codecov.io/gh/fossas/mocha-tape-deck/branch/master/graph/badge.svg)](https://codecov.io/gh/fossas/mocha-tape-deck)
+# Mocha Tape Deck [![CircleCI](https://circleci.com/gh/fossas/mocha-tape-deck.svg?style=svg)](https://circleci.com/gh/fossas/mocha-tape-deck) [![codecov](https://codecov.io/gh/fossas/mocha-tape-deck/branch/master/graph/badge.svg)](https://codecov.io/gh/fossas/mocha-tape-deck) [![npm version](https://badge.fury.io/js/mocha-tape-deck.svg)](https://badge.fury.io/js/mocha-tape-deck)
 Create, manage, and replay HTTP requests and responses for fast, deterministic tests.
 
 ## Installation
