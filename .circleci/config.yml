@@ -7,6 +7,10 @@ jobs:
       - image: circleci/node:8.10
     steps:
       - checkout
+      - run:
+          name: Make artifact folder
+          command: |
+            mkdir -p $ARTIFACTS
       - restore_cache:
           name: Restore Yarn Package Cache
           keys:
