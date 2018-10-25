@@ -1,5 +1,4 @@
-# Mocha Tape Deck [![CircleCI](https://circleci.com/gh/fossas/mocha-tape-deck.svg?style=svg)](https://circleci.com/gh/fossas/mocha-tape-deck) [![codecov](https://codecov.io/gh/fossas/mocha-tape-deck/branch/master/graph/badge.svg)](https://codecov.io/gh/fossas/mocha-tape-deck) [![npm version](https://badge.fury.io/js/mocha-tape-deck.svg)](https://badge.fury.io/js/mocha-tape-deck) [![FOSSA Status](https://app.fossa.io/api/projects/custom%2B1%2Fgit%40github.com%3Afossas%2Fmocha-tape-deck.git.svg?type=shield)](https://app.fossa.io/projects/custom%2B1%2Fgit%40github.com%3Afossas%2Fmocha-tape-deck.git?ref=badge_shield) [![FOSSA Status](https://app.fossa.io/api/projects/custom%2B1%2Fgit%40github.com%3Afossas%2Fmocha-tape-deck.git.svg?type=shield)](https://app.fossa.io/projects/custom%2B1%2Fgit%40github.com%3Afossas%2Fmocha-tape-deck.git?ref=badge_shield)
-
+# Mocha Tape Deck [![CircleCI](https://circleci.com/gh/fossas/mocha-tape-deck.svg?style=svg)](https://circleci.com/gh/fossas/mocha-tape-deck) [![codecov](https://codecov.io/gh/fossas/mocha-tape-deck/branch/master/graph/badge.svg)](https://codecov.io/gh/fossas/mocha-tape-deck) [![npm version](https://badge.fury.io/js/mocha-tape-deck.svg)](https://badge.fury.io/js/mocha-tape-deck) [![FOSSA Status](https://app.fossa.io/api/projects/custom%2B1%2Fgithub.com%3Afossas%2Fmocha-tape-deck.git.svg?type=shield)](https://app.fossa.io/projects/custom%2B1%2Fgithub.com%3Afossas%2Fmocha-tape-deck.git?ref=badge_shield)
 Create, manage, and replay HTTP requests and responses for fast, deterministic tests.
 
 ## Installation
@@ -130,4 +129,4 @@ describe('Example without test dape deck', function () {
 ## Easy integration testing
 Set the environment variable `NO_CASSETTE_MOCKING` (e.g. `NO_CASSETTE_MOCKING=true mocha ....`) to ignore all mocking code. This allows your unit/component tests to also be your integration tests!
 
-[![FOSSA Status](https://app.fossa.io/api/projects/custom%2B1%2Fgit%40github.com%3Afossas%2Fmocha-tape-deck.git.svg?type=large)](https://app.fossa.io/projects/custom%2B1%2Fgit%40github.com%3Afossas%2Fmocha-tape-deck.git?ref=badge_large)
+[![FOSSA Status](https://app.fossa.io/api/projects/custom%2B1%2Fgithub.com%3Afossas%2Fmocha-tape-deck.git.svg?type=large)](https://app.fossa.io/projects/custom%2B1%2Fgithub.com%3Afossas%2Fmocha-tape-deck.git?ref=badge_large)
