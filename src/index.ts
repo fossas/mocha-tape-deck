@@ -180,6 +180,7 @@ export class MochaTapeDeck extends mocha.Test implements ICompilable, IRecordabl
   }
 
   private getCassetteName(): string {
-    return this.fullTitle().split(' ').join('_') + '.cassette';
+    // remove all spaces and /, replace them with _ and - respectively
+    return this.fullTitle().split(' ').join('_').split('/').join('-') + '.cassette';
   }
 }

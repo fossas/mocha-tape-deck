@@ -87,4 +87,44 @@ describe('Mocha Tape Deck', function() {
     })
     .register(this)
   });
+
+  describe('passes when there are no http calls made', function() {
+    deck.createTest('namespace collision', async () => {
+      expect(true).to.be.true
+    })
+    .register(this)
+
+    deck.createTest('namespace collision', () => {
+      expect(true).to.be.true
+    })
+    .register(this)
+
+    deck.createTest('namespace collision', (done) => {
+      expect(true).to.be.true
+      done()
+    })
+    .register(this)
+
+    deck.createTest('namespace collision', () => {
+      expect(true).to.be.true
+      
+      return Promise.resolve()
+    })
+    .register(this)
+  });
+
+  // record
+  deck.createTest('can/handle/paths/with/slash', async () => {
+    const resp = await rp.get(`http://localhost:${PORT}/test`);
+    expect(resp).to.be.equal('response1');
+  })
+  .register(this)
+
+  // replay
+  deck.createTest('can/handle/paths/with/slash', async () => {
+    response = 'incorrectResponse';
+    const resp = await rp.get(`http://localhost:${PORT}/test`);
+    expect(resp).to.be.equal('response1');
+  })
+  .register(this)
 });
