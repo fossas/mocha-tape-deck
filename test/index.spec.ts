@@ -42,7 +42,7 @@ describe('Mocha Tape Deck', function() {
       const resp = await rp.get(`http://localhost:${PORT}/test`);
       expect(resp).to.be.equal('response1');
     })
-    .playCassette('Mocha_Tape_Deck_Mocks_the_http_requests_that_were_recorded_can_be_written.cassette')
+    .playCassette('Mocha Tape Deck Mocks the http requests that were recorded can be written.cassette')
     .register(this);
 
     deck.createTest('can be read with a done param', (done) => {
@@ -53,7 +53,7 @@ describe('Mocha Tape Deck', function() {
         .then(() => done())
         .catch(done);
     })
-    .playCassette('Mocha_Tape_Deck_Mocks_the_http_requests_that_were_recorded_can_be_written.cassette')
+    .playCassette('Mocha Tape Deck Mocks the http requests that were recorded can be written.cassette')
     .register(this);
 
     deck.createTest('can be read with a returned promise', () => {
@@ -62,7 +62,7 @@ describe('Mocha Tape Deck', function() {
       return rp.get(`http://localhost:${PORT}/test`)
         .then((resp) => expect(resp).to.be.equal('response1'));
     })
-    .playCassette('Mocha_Tape_Deck_Mocks_the_http_requests_that_were_recorded_can_be_written.cassette')
+    .playCassette('Mocha Tape Deck Mocks the http requests that were recorded can be written.cassette')
     .register(this);
 
     it('will not affect non mocked cases', async () => {
