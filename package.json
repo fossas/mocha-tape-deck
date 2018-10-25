@@ -1,6 +1,6 @@
 {
   "name": "mocha-tape-deck",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "dist/index.js",
   "license": "Apache-2.0",
   "bugs": {
