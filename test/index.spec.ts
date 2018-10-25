@@ -127,4 +127,6 @@ describe('Mocha Tape Deck', function() {
     expect(resp).to.be.equal('response1');
   })
   .register(this)
+
+  // TODO: figure out how to test case where test fails but still pass CI gates
 });

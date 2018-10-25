@@ -68,11 +68,13 @@ export class MochaTapeDeck extends mocha.Test implements ICompilable, IRecordabl
       return this;
     }
 
+    let cassetteFilePath;
+
     this.fnPrefix = () => {
       if (!fs.existsSync(this.cassettePath)) {
         fs.mkdirSync(this.cassettePath);
       } else if (fs.existsSync(this.getCassetteFilePath(cassetteFileName))) {
-        const cassetteFilePath = cassetteFileName ? path.join(this.cassettePath, cassetteFileName) : this.getCassetteFilePath();
+        cassetteFilePath = cassetteFileName ? path.join(this.cassettePath, cassetteFileName) : this.getCassetteFilePath();
         fs.unlinkSync(cassetteFilePath);
       }
 
@@ -86,9 +88,6 @@ export class MochaTapeDeck extends mocha.Test implements ICompilable, IRecordabl
     this.fnSuffix = () => {
       const res = nock.recorder.play();
       fs.writeFileSync(this.getCassetteFilePath(cassetteFileName), JSON.stringify(res, null, 2));
-      nock.recorder.clear();
-      nock.cleanAll();
-      nock.restore();
     };
 
     return this;
@@ -107,8 +106,6 @@ export class MochaTapeDeck extends mocha.Test implements ICompilable, IRecordabl
     };
 
     this.fnSuffix = () => {
-      nock.restore();
-      nock.cleanAll();
     };
 
     return this;
@@ -160,7 +157,9 @@ export class MochaTapeDeck extends mocha.Test implements ICompilable, IRecordabl
               });
           }
         })
-        .then(() => this.fnSuffix());
+        .then(() => this.fnSuffix())
+        .then(this.resetNock.bind(this))
+        .catch(this.resetNock.bind(this));
 
         // if we return with a done fn defined, we get the error Resolution method is overspecified.
       if (!done) {
@@ -169,6 +168,12 @@ export class MochaTapeDeck extends mocha.Test implements ICompilable, IRecordabl
     };
 
     suite.addTest(this);
+  }
+
+  private resetNock() {
+    nock.recorder.clear();
+    nock.cleanAll();
+    nock.restore();
   }
 
   private cassetteExists(filePath: string): boolean {
