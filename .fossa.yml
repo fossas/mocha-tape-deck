@@ -5,7 +5,7 @@ version: 1
 cli:
   server: https://app.fossa.io
   fetcher: custom
-  project: git@github.com:fossas/mocha-tape-deck.git
+  project: github.com:fossas/mocha-tape-deck.git
 analyze:
   modules:
   - name: .
