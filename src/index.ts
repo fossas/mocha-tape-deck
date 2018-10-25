@@ -3,6 +3,7 @@ import nock = require('nock');
 import * as mocha from 'mocha';
 import path = require('path');
 import rimraf = require('rimraf');
+import sanitize = require('sanitize-filename');
 
 export type RegistrationOptions = {
   failIfNoCassette: boolean;
@@ -73,7 +74,9 @@ export class MochaTapeDeck extends mocha.Test implements ICompilable, IRecordabl
     this.fnPrefix = () => {
       if (!fs.existsSync(this.cassettePath)) {
         fs.mkdirSync(this.cassettePath);
-      } else if (fs.existsSync(this.getCassetteFilePath(cassetteFileName))) {
+      }
+
+      if (fs.existsSync(this.getCassetteFilePath(cassetteFileName))) {
         cassetteFilePath = cassetteFileName ? path.join(this.cassettePath, cassetteFileName) : this.getCassetteFilePath();
         fs.unlinkSync(cassetteFilePath);
       }
@@ -102,7 +105,9 @@ export class MochaTapeDeck extends mocha.Test implements ICompilable, IRecordabl
     this.fnPrefix = () => {
       const cassettePath = this.getCassetteFilePath(cassetteFileName);
       nock.load(cassettePath);
-      nock.activate();
+      if (!nock.isActive()) {
+        nock.activate();
+      }
     };
 
     this.fnSuffix = () => {
@@ -117,7 +122,6 @@ export class MochaTapeDeck extends mocha.Test implements ICompilable, IRecordabl
 
   public register(suite: mocha.Suite,  options: RegistrationOptions = { failIfNoCassette: false}): void {
     const originalFn: any = this.fn;
-
 
     this.fn = (done?: mocha.Done): PromiseLike<any> => {
       if (!this.actionSpecified) {
@@ -184,8 +188,8 @@ export class MochaTapeDeck extends mocha.Test implements ICompilable, IRecordabl
     return path.join(this.cassettePath, filename || this.getCassetteName());
   }
 
-  private getCassetteName(): string {
+  private getCassetteName(filename?: string): string {
     // remove all spaces and /, replace them with _ and - respectively
-    return this.fullTitle().split(' ').join('_').split('/').join('-') + '.cassette';
+    return sanitize(filename || this.fullTitle()) + '.cassette';
   }
 }

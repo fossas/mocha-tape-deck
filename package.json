@@ -21,7 +21,8 @@
   "dependencies": {
     "mocha": "^5.2.0",
     "nock": "^10.0.1",
-    "rimraf": "^2.6.2"
+    "rimraf": "^2.6.2",
+    "sanitize-filename": "^1.6.1"
   },
   "devDependencies": {
     "@types/chai": "^4.1.6",
