@@ -92,5 +92,10 @@ workflows:
             tags:
               only: /v[0-9]+(\.[0-9]+)*.*/
       - publish:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*.*/
           requires:
             - build_and_test
