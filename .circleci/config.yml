@@ -1,10 +1,16 @@
 version: 2
 jobs:
   build_and_test:
+    environment:
+      ARTIFACTS: /tmp/artifacts
     docker:
       - image: circleci/node:8.10
     steps:
       - checkout
+      - run:
+          name: Make artifact folder
+          command: |
+            mkdir -p $ARTIFACTS
       - restore_cache:
           name: Restore Yarn Package Cache
           keys:
@@ -16,6 +22,10 @@ jobs:
           name: install globals
           command: yarn global add typescript
       - run:
+          name: install fossa-cli
+          command: |
+            curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install.sh | bash
+      - run:
           name: yarn install
           command: yarn
       - save_cache:
@@ -23,6 +33,18 @@ jobs:
           key: yarn-packages-{{ .Branch }}-{{ checksum "yarn.lock" }}
           paths:
             - node_modules/
+      - run:
+          name: Run FOSSA analysis
+          command: |
+            fossa analyze --debug > $ARTIFACTS/fossa-analyze-stdout 2> $ARTIFACTS/fossa-analyze-stderr
+      - run:
+          name: Run FOSSA license check
+          command: |
+            fossa test --debug > $ARTIFACTS/fossa-test-stdout 2> $ARTIFACTS/fossa-test-stderr
+      - run:
+          name: Save artifacts
+          command: |
+            cp $(which fossa) $ARTIFACTS
       - run:
           name: coverage tests
           command: yarn coverage && yarn publish:coverage
