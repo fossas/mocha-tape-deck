@@ -113,20 +113,41 @@ describe('Mocha Tape Deck', function() {
     .register(this)
   });
 
-  // record
-  deck.createTest('can/handle/paths/with/slash', async () => {
-    const resp = await rp.get(`http://localhost:${PORT}/test`);
-    expect(resp).to.be.equal('response1');
-  })
-  .register(this)
+  // Unskip this to test timeout cases. If timeout catching is not implemented properly a nock error like
+  // "Module's request already overridden for http protocol." or  "Nock recording already in progress" will be thrown
+  // If it is implemented properly, then only the third test will fail, and it willbe a timeout error
+  describe.skip('timeout suite', function () {
+    // record
+    deck.createTest('can handle a timeout', async () => {
+      const resp = await rp.get(`http://localhost:${PORT}/test`);
+      expect(resp).to.be.equal('response1');
+    })
+    .register(this)
 
-  // replay
-  deck.createTest('can/handle/paths/with/slash', async () => {
-    response = 'incorrectResponse';
-    const resp = await rp.get(`http://localhost:${PORT}/test`);
-    expect(resp).to.be.equal('response1');
-  })
-  .register(this)
+    // replay
+    deck.createTest('can handle a timeout', async () => {
+      response = 'incorrectResponse';
+      const resp = await rp.get(`http://localhost:${PORT}/test`);
+      expect(resp).to.be.equal('response1');
+    })
+    .register(this)
+    
+    deck.createTest('can handle a timeout', (done) => {
+      setTimeout(() => {
+        done()
+      }, 10000)
+    })
+    .timeout(500)
+    .register(this)
+    
+    // replay
+    deck.createTest('can handle a timeout', async () => {
+      response = 'incorrectResponse';
+      const resp = await rp.get(`http://localhost:${PORT}/test`);
+      expect(resp).to.be.equal('response1');
+    })
+    .register(this)
+});
 
   // TODO: figure out how to test case where test fails but still pass CI gates
 });

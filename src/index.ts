@@ -11,6 +11,7 @@ export type RegistrationOptions = {
 
 export interface ICompilable {
   register(suite: mocha.Suite, options?: RegistrationOptions): void;
+  timeout(n: number | string): ICompilable;
 }
 
 export interface IRecordable {
@@ -124,50 +125,57 @@ export class MochaTapeDeck extends mocha.Test implements ICompilable, IRecordabl
     const originalFn: any = this.fn;
 
     this.fn = (done?: mocha.Done): PromiseLike<any> => {
-      if (!this.actionSpecified) {
-        if (this.cassetteExists(this.getCassetteFilePath())) {
-          this.playCassette();
-        } else {
-          if (options.failIfNoCassette) {
-            throw new Error('Expected cassette file for mocha tape-deck player does not exist');
+      try {
+        if (!this.actionSpecified) {
+          if (this.cassetteExists(this.getCassetteFilePath())) {
+            this.playCassette();
+          } else {
+            if (options.failIfNoCassette) {
+              throw new Error('Expected cassette file for mocha tape-deck player does not exist');
+            }
+            this.recordCassette();
           }
-          this.recordCassette();
         }
-      }
-      this.fnPrefix();
+        this.fnPrefix();
 
-      let testExecutedPromise: Promise<any>;
+        let testExecutedPromise: Promise<any>;
 
-      let doneWrapper;
-      const donePromise = new Promise((res) => {
-        doneWrapper = res;
-      });
+        let doneWrapper;
+        const donePromise = new Promise((res) => {
+          doneWrapper = res
+        });
 
-      const returnVal = originalFn(done ? doneWrapper : undefined);
-      // sanity check for promise case
-      if (returnVal && returnVal.then) {
-        testExecutedPromise = returnVal;
-      } else {
-        //test was synchronous
-        testExecutedPromise = Promise.resolve();
-      }
+        const returnVal = originalFn(done ? doneWrapper : undefined);
+        // sanity check for promise case
+        if (returnVal && returnVal.then) {
+          testExecutedPromise = returnVal;
+        } else {
+          //test was synchronous
+          testExecutedPromise = Promise.resolve();
+        }
 
-      testExecutedPromise
-        .then(() => {
-          if (done) {
-            return donePromise
-              .then((res) => {
-                done(res);
-              });
-          }
-        })
-        .then(() => this.fnSuffix())
-        .then(this.resetNock.bind(this))
-        .catch(this.resetNock.bind(this));
+        testExecutedPromise
+          .then(() => {
+            if (done) {
+              return donePromise
+                .then((res) => {
+                  done(res);
+                });
+            }
+          })
+          .then(() => this.fnSuffix())
+          .then(this.resetNock.bind(this))
+          .catch(() => {
+            this.resetNock.bind(this);
+          });
 
-        // if we return with a done fn defined, we get the error Resolution method is overspecified.
-      if (!done) {
-        return testExecutedPromise;
+          // if we return with a done fn defined, we get the error Resolution method is overspecified.
+        if (!done) {
+          return testExecutedPromise;
+        }
+      } catch(e) {
+        // catches timeout errors. Mocha magic handles the rest. NOTE, this is incredibly hard to test for
+        this.resetNock();
       }
     };
 
