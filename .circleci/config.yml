@@ -45,10 +45,6 @@ jobs:
           name: Run FOSSA analysis
           command: |
             fossa analyze --debug > /tmp/test-results/fossa-analyze-stdout 2> /tmp/test-results/fossa-analyze-stderr
-      - run:
-          name: Run FOSSA license check
-          command: |
-            fossa test --debug > /tmp/test-results/fossa-test-stdout 2> /tmp/test-results/fossa-test-stderr
       - *store_results
       - *store_paths
       - run:
