@@ -1,4 +1,15 @@
 version: 2
+references:
+  store_results: &store_results
+    store_test_results:
+      path: '/tmp/test-results/'
+  
+  store_paths: &store_paths
+    store_artifacts:
+      path: '/tmp/test-results'
+  
+  create_results_dir: &create_results_dir
+    run: mkdir -p /tmp/test-results
 jobs:
   build_and_test:
     environment:
@@ -7,10 +18,7 @@ jobs:
       - image: circleci/node:12.22.7
     steps:
       - checkout
-      - run:
-          name: Make artifact folder
-          command: |
-            mkdir -p $ARTIFACTS
+      - *create_results_dir
       - restore_cache:
           name: Restore Yarn Package Cache
           keys:
@@ -36,15 +44,13 @@ jobs:
       - run:
           name: Run FOSSA analysis
           command: |
-            fossa analyze --debug > $ARTIFACTS/fossa-analyze-stdout 2> $ARTIFACTS/fossa-analyze-stderr
+            fossa analyze --debug > /tmp/test-results/fossa-analyze-stdout 2> /tmp/test-results/fossa-analyze-stderr
       - run:
           name: Run FOSSA license check
           command: |
-            fossa test --debug > $ARTIFACTS/fossa-test-stdout 2> $ARTIFACTS/fossa-test-stderr
-      - run:
-          name: Save artifacts
-          command: |
-            cp $(which fossa) $ARTIFACTS
+            fossa test --debug > /tmp/test-results/fossa-test-stdout 2> /tmp/test-results/fossa-test-stderr
+      - *store_results
+      - *store_paths
       - run:
           name: coverage tests
           command: yarn coverage && yarn publish:coverage
