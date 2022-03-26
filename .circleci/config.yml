@@ -32,7 +32,7 @@ jobs:
       - run:
           name: install fossa-cli
           command: |
-            curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install.sh | bash
+            curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install-latest.sh | bash
       - run:
           name: yarn install
           command: yarn
