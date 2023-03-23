@@ -15,11 +15,7 @@ jobs:
     environment:
       ARTIFACTS: /tmp/artifacts
     docker:
-<<<<<<< HEAD
-      - image: circleci/node:12.22.7
-=======
       - image: cimg/node:18.15.0
->>>>>>> master
     steps:
       - checkout
       - *create_results_dir
@@ -64,11 +60,7 @@ jobs:
           
   publish:
     docker:
-<<<<<<< HEAD
-      - image: circleci/node:12.22.7
-=======
       - image: cimg/node:18.15.0
->>>>>>> master
     steps:
       - checkout
       - run: 
