@@ -9,9 +9,13 @@
       "noImplicitAny": false,
       "outDir": "./dist",
       "sourceMap": true,
-      "declaration": true
+      "declaration": true,
+      "skipLibCheck": true
   },
   "files": [
       "./src/index.ts"
+  ],
+  "exclude": [
+      "node_modules"
   ]
 }
