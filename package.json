@@ -3,6 +3,9 @@
   "version": "0.0.9",
   "main": "dist/index.js",
   "license": "Apache-2.0",
+  "engines": {
+    "node": ">14.19.1"
+  },
   "bugs": {
     "url": "https://github.com/fossas/mocha-tape-deck/issues"
   },
@@ -20,7 +23,7 @@
   },
   "dependencies": {
     "mocha": "^5.2.0",
-    "nock": "^13",
+    "nock": "^13.3.0",
     "rimraf": "^2.6.2",
     "sanitize-filename": "^1.6.1"
   },
