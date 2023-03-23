@@ -4,7 +4,7 @@ jobs:
     environment:
       ARTIFACTS: /tmp/artifacts
     docker:
-      - image: circleci/node:18.15.0
+      - image: cimg/node:18.15.0
     steps:
       - checkout
       - run:
@@ -55,7 +55,7 @@ jobs:
           
   publish:
     docker:
-      - image: circleci/node:node:18.15.0
+      - image: cimg/node:18.15.0
     steps:
       - checkout
       - run: 
