@@ -34,6 +34,9 @@ jobs:
           paths:
             - node_modules/
       - run:
+          name: Build typescript
+          command: yarn build
+      - run:
           name: Run FOSSA analysis
           command: |
             fossa analyze --debug > $ARTIFACTS/fossa-analyze-stdout 2> $ARTIFACTS/fossa-analyze-stderr
