@@ -149,5 +149,82 @@ describe('Mocha Tape Deck', function() {
     .register(this)
 });
 
+  // Regression test: mocha-tape-deck wrapper declares `done` parameter (fn.length === 1),
+  // causing newer mocha versions to always pass a `done` callback. For async test functions
+  // that don't call `done`, the wrapper waited on a `donePromise` that never resolved → deadlock.
+  // This test exercises the bug directly by calling the wrapper with a `done` argument.
+  describe('done parameter deadlock fix', function() {
+    it('calls done for async test functions that do not expect done', function(testDone) {
+      this.timeout(2000);
+
+      const origEnv = process.env.NO_CASSETTE_MOCKING;
+      process.env.NO_CASSETTE_MOCKING = '1';
+
+      const test = deck.createTest('async no-done', async () => {
+        // async function: does not accept or call done
+        return;
+      });
+      test.playCassette();
+
+      const mockSuite = { addTest: () => {} } as any;
+      test.register(mockSuite);
+
+      // Directly invoke the wrapper with a done callback, simulating newer mocha behavior
+      // where fn.length === 1 causes mocha to pass done.
+      // Before the fix: donePromise never resolves → done never called → timeout
+      const wrappedFn = test.fn as any;
+      wrappedFn((err?: any) => {
+        process.env.NO_CASSETTE_MOCKING = origEnv || '';
+        if (origEnv === undefined) { delete process.env.NO_CASSETTE_MOCKING; }
+        testDone(err);
+      });
+    });
+
+    it('still waits for done when the original test expects done', function(testDone) {
+      this.timeout(2000);
+
+      const origEnv = process.env.NO_CASSETTE_MOCKING;
+      process.env.NO_CASSETTE_MOCKING = '1';
+
+      const test = deck.createTest('done-style', (done) => {
+        // done-style test: calls done after async work
+        setTimeout(() => done(), 50);
+      });
+      test.playCassette();
+
+      const mockSuite = { addTest: () => {} } as any;
+      test.register(mockSuite);
+
+      const wrappedFn = test.fn as any;
+      wrappedFn((err?: any) => {
+        process.env.NO_CASSETTE_MOCKING = origEnv || '';
+        if (origEnv === undefined) { delete process.env.NO_CASSETTE_MOCKING; }
+        testDone(err);
+      });
+    });
+
+    it('calls done for sync test functions that return a promise', function(testDone) {
+      this.timeout(2000);
+
+      const origEnv = process.env.NO_CASSETTE_MOCKING;
+      process.env.NO_CASSETTE_MOCKING = '1';
+
+      const test = deck.createTest('sync-promise', () => {
+        return Promise.resolve();
+      });
+      test.playCassette();
+
+      const mockSuite = { addTest: () => {} } as any;
+      test.register(mockSuite);
+
+      const wrappedFn = test.fn as any;
+      wrappedFn((err?: any) => {
+        process.env.NO_CASSETTE_MOCKING = origEnv || '';
+        if (origEnv === undefined) { delete process.env.NO_CASSETTE_MOCKING; }
+        testDone(err);
+      });
+    });
+  });
+
   // TODO: figure out how to test case where test fails but still pass CI gates
 });
