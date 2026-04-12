@@ -123,6 +123,7 @@ export class MochaTapeDeck extends mocha.Test implements ICompilable, IRecordabl
 
   public register(suite: mocha.Suite,  options: RegistrationOptions = { failIfNoCassette: false}): void {
     const originalFn: any = this.fn;
+    const originalFnExpectsDone = originalFn.length > 0;
 
     this.fn = (done?: mocha.Done): PromiseLike<any> => {
       try {
@@ -145,7 +146,7 @@ export class MochaTapeDeck extends mocha.Test implements ICompilable, IRecordabl
           doneWrapper = res
         });
 
-        const returnVal = originalFn(done ? doneWrapper : undefined);
+        const returnVal = originalFn(originalFnExpectsDone ? doneWrapper : undefined);
         // sanity check for promise case
         if (returnVal && returnVal.then) {
           testExecutedPromise = returnVal;
@@ -157,10 +158,14 @@ export class MochaTapeDeck extends mocha.Test implements ICompilable, IRecordabl
         testExecutedPromise
           .then(() => {
             if (done) {
-              return donePromise
-                .then((res) => {
-                  done(res);
-                });
+              if (originalFnExpectsDone) {
+                return donePromise
+                  .then((res) => {
+                    done(res);
+                  });
+              } else {
+                done();
+              }
             }
           })
           .then(() => this.fnSuffix())
